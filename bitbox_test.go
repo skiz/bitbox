@@ -14,25 +14,25 @@ func TestNewBitBox(t *testing.T) {
 func TestBitPosition(t *testing.T) {
 	b := &BitBox{}
 
-	by, bi := b.position(0)
+	by, bi := b.Position(0)
 	if by != 0 || bi != 0x80 {
-		t.Errorf("Expected position(0) to be 0, 0x80, but was %d, %0b", by, bi)
+		t.Errorf("Expected Position(0) to be 0, 0x80, but was %d, %0b", by, bi)
 	}
 
-	by, bi = b.position(7)
+	by, bi = b.Position(7)
 	if by != 0 || bi != 0x01 {
-		t.Errorf("Expected position(7) to be 0, 0x01, but was %d, %0b", by, bi)
+		t.Errorf("Expected Position(7) to be 0, 0x01, but was %d, %0b", by, bi)
 
 	}
 
-	by, bi = b.position(8)
+	by, bi = b.Position(8)
 	if by != 1 || bi != 0x80 {
-		t.Errorf("Expected position(8) to be 1, 0x80, but was %d, %0b", by, bi)
+		t.Errorf("Expected Position(8) to be 1, 0x80, but was %d, %0b", by, bi)
 	}
 
-	by, bi = b.position(36)
+	by, bi = b.Position(36)
 	if by != 4 || bi != 0x08 {
-		t.Errorf("Expected position(37) to be 4, 0x08, but was %d, %0b", by, bi)
+		t.Errorf("Expected Position(37) to be 4, 0x08, but was %d, %0b", by, bi)
 	}
 }
 
@@ -43,8 +43,8 @@ func TestBasicBitManipulation(t *testing.T) {
 		t.Errorf("Expected bit 5 to be true, but got false")
 	}
 
-	if b.bytes[0] != uint8(4) {
-		t.Errorf("Expected byte uint8(4), but got uint8(%d)", b.bytes[0])
+	if b.Bytes[0] != uint8(4) {
+		t.Errorf("Expected byte uint8(4), but got uint8(%d)", b.Bytes[0])
 	}
 
 	b.Set(15)
@@ -61,8 +61,8 @@ func TestBasicBitManipulation(t *testing.T) {
 		t.Errorf("Expected Unset to not change max, but changed to %d", b.max)
 	}
 
-	if len(b.bytes) != 2 {
-		t.Errorf("Expected Unset to not change bytes, but is %d", len(b.bytes))
+	if len(b.Bytes) != 2 {
+		t.Errorf("Expected Unset to not change bytes, but is %d", len(b.Bytes))
 	}
 }
 
@@ -72,32 +72,32 @@ func TestByteExpansion(t *testing.T) {
 	if b.max != 8 {
 		t.Errorf("Expected 8 bit max, but got %d", b.max)
 	}
-	if len(b.bytes) != 1 {
-		t.Errorf("Expected 1 byte, but was %d", len(b.bytes))
+	if len(b.Bytes) != 1 {
+		t.Errorf("Expected 1 byte, but was %d", len(b.Bytes))
 	}
 
 	b.Set(15)
 	if b.max != 16 {
 		t.Errorf("Expected 16 bit max, but got %d", b.max)
 	}
-	if len(b.bytes) != 2 {
-		t.Errorf("Expected 2 bytes, but was %d", len(b.bytes))
+	if len(b.Bytes) != 2 {
+		t.Errorf("Expected 2 bytes, but was %d", len(b.Bytes))
 	}
 
 	b.Set(641)
 	if b.max != 648 {
 		t.Errorf("Expected 648 bit max, but got %d", b.max)
 	}
-	if len(b.bytes) != 81 {
-		t.Errorf("Expected 81 bytes, but was %d", len(b.bytes))
+	if len(b.Bytes) != 81 {
+		t.Errorf("Expected 81 bytes, but was %d", len(b.Bytes))
 	}
 
 	b.Get(4500)
 	if b.max != 648 {
 		t.Errorf("Get should not expand max, but expanded to %d", b.max)
 	}
-	if len(b.bytes) != 81 {
-		t.Errorf("Expected 81 bytes, but was %d", len(b.bytes))
+	if len(b.Bytes) != 81 {
+		t.Errorf("Expected 81 bytes, but was %d", len(b.Bytes))
 	}
 }
 
@@ -118,11 +118,11 @@ func TestResizing(t *testing.T) {
 	b.Set(90)
 
 	b.Clear()
-	if len(b.bytes) != 12 {
-		t.Errorf("Clear expected byte length of 0, but was %d", len(b.bytes))
+	if len(b.Bytes) != 12 {
+		t.Errorf("Clear expected byte length of 0, but was %d", len(b.Bytes))
 	}
 	for i := 0; i < 12; i++ {
-		if b.bytes[i] != 0x00 {
+		if b.Bytes[i] != 0x00 {
 			t.Errorf("Expected all bits to be cleared, but byte %x wasnt", i)
 		}
 	}
@@ -131,22 +131,22 @@ func TestResizing(t *testing.T) {
 	if b.max != 16 {
 		t.Errorf("Expected Resize to set max to 16, but was %d", b.max)
 	}
-	if len(b.bytes) != 2 {
-		t.Errorf("Expected Resize byte length of 2, but was %d", len(b.bytes))
+	if len(b.Bytes) != 2 {
+		t.Errorf("Expected Resize byte length of 2, but was %d", len(b.Bytes))
 	}
 
 	b.Set(15)
 	b.Resize(15)
 	if !b.Get(15) {
-		t.Errorf("Expected growing with resize to not clear bit position 15")
+		t.Errorf("Expected growing with resize to not clear bit Position 15")
 	}
 
 	b.Resize(4)
 	if b.Get(15) {
-		t.Errorf("Expected resize to clear bit position 15")
+		t.Errorf("Expected resize to clear bit Position 15")
 	}
-	if len(b.bytes) != 1 {
-		t.Errorf("Expected Resize byte length of 1, but was %d", len(b.bytes))
+	if len(b.Bytes) != 1 {
+		t.Errorf("Expected Resize byte length of 1, but was %d", len(b.Bytes))
 	}
 
 	if b.Resize(16) != 16 {

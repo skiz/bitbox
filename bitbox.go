@@ -4,7 +4,7 @@ package bitbox
 // bits to be set and read quickly and somewhat efficiently.
 type BitBox struct {
 	max   int
-	bytes []byte
+	Bytes []byte
 }
 
 // NewBitBox returns a new BitBox configured for the given
@@ -20,24 +20,24 @@ func NewBitBox(bits int) *BitBox {
 // The actual allocation will reflect a suitable byte size.
 func (b *BitBox) Resize(bits int) int {
 	if bits > b.max {
-		add := (bits >> 3) - len(b.bytes)
+		add := (bits >> 3) - len(b.Bytes)
 		if bits&7 > 0 {
 			add++
 		}
-		b.bytes = append(b.bytes, make([]byte, add)...)
+		b.Bytes = append(b.Bytes, make([]byte, add)...)
 	} else {
 		bytes := (bits >> 3)
 		if bits&7 > 0 {
 			bytes++
 		}
-		b.bytes = append([]byte(nil), b.bytes[:bytes]...)
+		b.Bytes = append([]byte(nil), b.Bytes[:bytes]...)
 	}
-	b.max = len(b.bytes) << 3
+	b.max = len(b.Bytes) << 3
 	return b.max
 }
 
 // position returns the byte index and a bitmask for a given bit.
-func (b *BitBox) position(n int) (int, uint8) {
+func (b *BitBox) Position(n int) (int, uint8) {
 	byteNum := n >> 3
 	n -= (byteNum << 3)
 	var bitPos uint8 = 1
@@ -50,13 +50,13 @@ func (b *BitBox) Get(n int) bool {
 	if n >= b.max {
 		return false
 	}
-	byteNum, bitPos := b.position(n)
-	return !((b.bytes[byteNum] & bitPos) == 0)
+	byteNum, bitPos := b.Position(n)
+	return !((b.Bytes[byteNum] & bitPos) == 0)
 }
 
 // Set the given bit position to true.
 func (b *BitBox) Set(n int) {
-	byteNum, bitPos := b.position(n)
+	byteNum, bitPos := b.Position(n)
 	if n >= b.max {
 		if n == 0 {
 			b.Resize(1)
@@ -64,14 +64,14 @@ func (b *BitBox) Set(n int) {
 			b.Resize(n)
 		}
 	}
-	b.bytes[byteNum] |= bitPos
+	b.Bytes[byteNum] |= bitPos
 }
 
 // Unset sets the given bit position to false.
 func (b *BitBox) Unset(n int) {
 	if n < b.max {
-		byteNum, bitPos := b.position(n)
-		b.bytes[byteNum] &^= bitPos
+		byteNum, bitPos := b.Position(n)
+		b.Bytes[byteNum] &^= bitPos
 	}
 }
 
@@ -80,27 +80,27 @@ func (b *BitBox) Toggle(n int) {
 	if n >= b.max {
 		b.Resize(n)
 	}
-	byteNum, bitPos := b.position(n)
-	b.bytes[byteNum] ^= bitPos
+	byteNum, bitPos := b.Position(n)
+	b.Bytes[byteNum] ^= bitPos
 }
 
 // GetByte returns a byte from the BitBox
 func (b *BitBox) GetByte(n int) byte {
-	if len(b.bytes) < n {
+	if len(b.Bytes) < n {
 		return 0x0
 	}
-	return b.bytes[n]
+	return b.Bytes[n]
 }
 
 // Size() returns the bit size of the BitBox
 func (b *BitBox) Size() int {
-	return b.max //len(b.bytes) * 8
+	return b.max //len(b.Bytes) * 8
 }
 
 // Clear zeros all bits, effectively setting all bits to false.
 func (b *BitBox) Clear() {
-	for i := range b.bytes {
-		b.bytes[i] = 0x00
+	for i := range b.Bytes {
+		b.Bytes[i] = 0x00
 	}
 }
 
